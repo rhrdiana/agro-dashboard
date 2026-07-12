@@ -17,6 +17,7 @@ const NAV_LABEL: Record<NavId, { label: string; group: string }> = {
   xai:         { label: "Inside the Model",     group: "Demo" },
   conclusion:  { label: "Conclusion & Recs",    group: "Output" },
   audit:       { label: "Audit Trail",          group: "Output" },
+  batch:       { label: "Batch Prediction",     group: "Experiment" },
 };
 
 export const Topbar: React.FC<TopbarProps> = ({ activeTab, onRefresh }) => {

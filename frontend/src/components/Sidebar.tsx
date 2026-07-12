@@ -11,6 +11,7 @@ export type NavId =
   | "prediction"
   | "xai"
   | "conclusion"
+  | "batch"
   | "audit";
 
 interface NavItem {
@@ -32,49 +33,109 @@ const NAV_ITEMS: NavItem[] = [
     id: "overview",
     label: "Overview",
     group: "Project",
-    icon: <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>,
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    ),
   },
   {
     id: "eda",
     label: "Data Explorer",
     group: "Project",
-    icon: <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+      </svg>
+    ),
   },
   {
     id: "stress",
     label: "Stress Test Lab",
     group: "Experiment",
-    icon: <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>
+    ),
   },
   {
     id: "performance",
     label: "Model Performance",
     group: "Experiment",
-    icon: <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+        <polyline points="17 6 23 6 23 12"/>
+      </svg>
+    ),
+  },
+  {
+    id: "batch",
+    label: "Batch Prediction",
+    group: "Experiment",
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M15 3h6v6"/>
+        <path d="M10 14 21 3"/>
+        <line x1="8" y1="13" x2="8" y2="17"/>
+        <line x1="12" y1="11" x2="12" y2="17"/>
+        <line x1="16" y1="9" x2="16" y2="13"/>
+      </svg>
+    ),
   },
   {
     id: "prediction",
     label: "Live Prediction",
     group: "Demo",
-    icon: <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>,
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polygon points="10 8 16 12 10 16 10 8"/>
+      </svg>
+    ),
   },
   {
     id: "xai",
     label: "Inside the Model",
     group: "Demo",
-    icon: <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+    ),
   },
   {
     id: "conclusion",
     label: "Conclusion",
     group: "Output",
-    icon: <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>,
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+      </svg>
+    ),
   },
   {
     id: "audit",
     label: "Audit Trail",
     group: "Output",
-    icon: <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
+    icon: (
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+        <line x1="8" y1="6" x2="21" y2="6"/>
+        <line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/>
+        <line x1="3" y1="6" x2="3.01" y2="6"/>
+        <line x1="3" y1="12" x2="3.01" y2="12"/>
+        <line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+    ),
   },
 ];
 
@@ -105,7 +166,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, sessio
           z-index: 40;
         }
 
-        /* Spacer so main content doesn't hide under the fixed sidebar */
         .sb-spacer {
           flex-shrink: 0;
           width: ${W}px;
@@ -292,7 +352,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, sessio
                   title={collapsed ? item.label : ""}
                 >
                   <span className="nb-dot" />
-                  <span style={{ flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+                    {item.icon}
+                  </span>
                   {!collapsed && <span style={{ flex: 1 }}>{item.label}</span>}
                 </button>
               ))}
@@ -321,7 +383,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, sessio
         )}
       </aside>
 
-      {/* Toggle button — fixed, tracks sidebar width */}
+      {/* Toggle button */}
       <button className="sb-toggle" onClick={() => setCollapsed(p => !p)}>
         <svg width={10} height={10} viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth={2}>
           {collapsed
@@ -330,7 +392,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, sessio
         </svg>
       </button>
 
-      {/* Spacer that pushes main content to the right */}
+      {/* Spacer */}
       <div className="sb-spacer" />
     </>
   );

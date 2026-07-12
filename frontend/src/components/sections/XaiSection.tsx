@@ -6,12 +6,38 @@ import {
   CartesianGrid, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from "recharts";
 import { Sk, SectionWrap } from "../UI";
+import type {
+  PerfResponse,
+  PredictResponse,
+  DecisionPath,
+  ShapItem,
+  XaiGlobalItem,
+} from "../../app/page";
 
-interface XaiProps { perfData: any; predResult: any; perfLoading: boolean; predLoading: boolean; }
+interface XaiProps {
+  perfData:       PerfResponse | null;
+  predResult:     PredictResponse | null;
+  perfLoading:    boolean;
+  predLoading:    boolean;
+  // v3.0 props
+  decisionPath:   DecisionPath | null;
+  xaiShap:        ShapItem[] | null;
+  xaiGlobal:      XaiGlobalItem[] | null;
+  consensusLabel: string | null;
+}
 
 const FEAT_COLORS = ["#2D6A4F", "#40916C", "#52B788", "#74C69D", "#95D5B2", "#B7E4C7", "#D8F3DC"];
 
-export const XaiSection: React.FC<XaiProps> = ({ perfData, predResult, perfLoading, predLoading }) => (
+export const XaiSection: React.FC<XaiProps> = ({
+  perfData,
+  predResult,
+  perfLoading,
+  predLoading,
+  decisionPath,
+  xaiShap,
+  xaiGlobal,
+  consensusLabel,
+}) => (
   <SectionWrap>
     <div className="g2">
       {/* Feature Importance Bar */}
@@ -43,16 +69,20 @@ export const XaiSection: React.FC<XaiProps> = ({ perfData, predResult, perfLoadi
         </div>
       </div>
 
-      {/* Radar */}
+      {/* Radar — xaiGlobal (v3.0) or fallback to predResult.xai_contribution */}
       <div className="card">
         <div className="card-title">Radar — Kontribusi Instance Saat Ini</div>
         <div className="card-subtitle">Berdasarkan nilai input di Live Prediction</div>
         <div style={{ height: 270 }}>
           {predLoading ? <Sk h={270} /> : (
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={(predResult?.xai_contribution ?? []).map((x: any) => ({
-                subject: x.feature, value: x.importance, fullMark: 100,
-              }))}>
+              <RadarChart data={
+                (xaiGlobal ?? (predResult as any)?.xai_contribution ?? []).map((x: any) => ({
+                  subject: x.feature ?? x.abbr,
+                  value:   x.importance,
+                  fullMark: 100,
+                }))
+              }>
                 <PolarGrid stroke="var(--border)" />
                 <PolarAngleAxis dataKey="subject" tick={{ fontSize: 9.5, fontFamily: "DM Mono", fill: "var(--muted)" }} />
                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9, fill: "var(--muted)" }} />
@@ -64,7 +94,98 @@ export const XaiSection: React.FC<XaiProps> = ({ perfData, predResult, perfLoadi
       </div>
     </div>
 
-    {/* Table */}
+    {/* SHAP Table (v3.0) */}
+    {xaiShap && xaiShap.length > 0 && (
+      <div className="card">
+        <div className="card-title">SHAP — Per-Sample Feature Impact</div>
+        <div className="card-subtitle">Kontribusi setiap fitur terhadap prediksi instance saat ini</div>
+        <table className="tbl">
+          <thead>
+            <tr><th>#</th><th>Fitur</th><th>Nama Lengkap</th><th>SHAP Value</th><th>Arah</th><th>Abs Impact</th></tr>
+          </thead>
+          <tbody>
+            {[...xaiShap].sort((a, b) => b.abs_impact - a.abs_impact).map((s, i) => (
+              <tr key={s.feature}>
+                <td style={{ color: "var(--muted)", fontFamily: "var(--mono)" }}>{i + 1}</td>
+                <td><span className="badge badge-green" style={{ fontFamily: "var(--mono)" }}>{s.feature}</span></td>
+                <td className="tbl-main">{s.full_name}</td>
+                <td style={{ fontFamily: "var(--mono)", fontSize: 12 }}>
+                  <span style={{ color: s.direction === "positive" ? "var(--green)" : "#A32D2D" }}>
+                    {s.shap_value >= 0 ? "+" : ""}{s.shap_value.toFixed(4)}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge ${s.direction === "positive" ? "badge-green" : "badge-red"}`}>
+                    {s.direction === "positive" ? "▲ Positif" : "▼ Negatif"}
+                  </span>
+                </td>
+                <td>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 80, height: 5, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${Math.min(s.abs_impact * 100, 100)}%`, background: "var(--green)", borderRadius: 999 }} />
+                    </div>
+                    <span style={{ fontFamily: "var(--mono)", fontSize: 12 }}>{s.abs_impact.toFixed(4)}</span>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    {/* Decision Path (v3.0) */}
+    {decisionPath && (
+      <div className="card">
+        <div className="card-title">Decision Path — Jalur Keputusan DT</div>
+        <div className="card-subtitle">Node yang dilalui Decision Tree untuk input saat ini (panjang: {decisionPath.path_length})</div>
+        <div style={{ overflowX: "auto" }}>
+          <table className="tbl">
+            <thead>
+              <tr><th>Node</th><th>Tipe</th><th>Fitur</th><th>Threshold</th><th>Input Value</th><th>Arah</th><th>Samples</th><th>Impurity</th></tr>
+            </thead>
+            <tbody>
+              {decisionPath.nodes.map((node, i) => (
+                <tr key={node.node_id}>
+                  <td style={{ fontFamily: "var(--mono)", color: "var(--muted)" }}>{node.node_id}</td>
+                  <td>
+                    <span className={`badge ${node.is_leaf ? "badge-gold" : "badge-green"}`}>
+                      {node.is_leaf ? "Leaf" : "Split"}
+                    </span>
+                  </td>
+                  <td className="tbl-main">{node.feature ?? node.predicted_class ?? "—"}</td>
+                  <td style={{ fontFamily: "var(--mono)", fontSize: 12 }}>{node.threshold != null ? node.threshold.toFixed(4) : "—"}</td>
+                  <td style={{ fontFamily: "var(--mono)", fontSize: 12 }}>{node.input_value != null ? node.input_value.toFixed(4) : "—"}</td>
+                  <td>{node.direction
+                    ? <span className={`badge ${node.direction === "left" ? "badge-gray" : "badge-green"}`}>{node.direction}</span>
+                    : "—"}
+                  </td>
+                  <td style={{ fontFamily: "var(--mono)", fontSize: 12 }}>{node.samples}</td>
+                  <td style={{ fontFamily: "var(--mono)", fontSize: 12 }}>{node.impurity.toFixed(4)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {decisionPath.tree_rules_excerpt && (
+          <div style={{ background: "var(--bg)", borderRadius: 10, padding: "14px 16px", fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--muted)", lineHeight: 2, marginTop: 14, whiteSpace: "pre-wrap" }}>
+            {decisionPath.tree_rules_excerpt}
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* Consensus Label (v3.0) */}
+    {consensusLabel && (
+      <div className="card" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div className="card-title" style={{ margin: 0 }}>Consensus Status:</div>
+        <span className={`badge ${consensusLabel.toLowerCase().includes("verified") ? "badge-green" : "badge-gold"}`} style={{ fontSize: 13, padding: "4px 14px" }}>
+          {consensusLabel}
+        </span>
+      </div>
+    )}
+
+    {/* Feature Importance Table */}
     <div className="card">
       <div className="card-title">Tabel Feature Importance (DT, After FS)</div>
       <table className="tbl">

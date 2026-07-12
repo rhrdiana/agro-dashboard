@@ -6,8 +6,13 @@ import {
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import { Sk, SectionWrap } from "../UI";
+import type { PerfResponse } from "../../app/page";
 
-interface StressProps { perfData: any; loading: boolean; }
+// FIX: ganti "any" dengan type yang benar dari page.tsx
+interface StressProps {
+  perfData: PerfResponse | null;
+  loading:  boolean;
+}
 
 const DT_COLOR  = "#1A3D2B";
 const NB_COLOR  = "#40916C";
@@ -16,71 +21,61 @@ const NB2_COLOR = "#95D5B2";
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <div style={{
-    fontSize: 10,
-    fontWeight: 700,
+    fontSize: 10, fontWeight: 700,
     textTransform: "uppercase" as const,
-    letterSpacing: ".1em",
-    color: "var(--muted)",
-    marginBottom: 14,
+    letterSpacing: ".1em", color: "var(--muted)", marginBottom: 14,
   }}>{children}</div>
 );
 
 export const StressSection: React.FC<StressProps> = ({ perfData, loading }) => (
   <SectionWrap>
 
-    {/* Info banner */}
+    {/* Info banner — FIX: deskripsi diupdate sesuai augmentasi v3.0 (std-based) */}
     <div style={{
-      background: "var(--bg, #F8F9FA)",
-      border: "1px solid var(--border)",
-      borderRadius: 10,
-      padding: "14px 18px",
-      display: "flex",
-      gap: 14,
-      alignItems: "flex-start",
+      background: "var(--bg, #F8F9FA)", border: "1px solid var(--border)",
+      borderRadius: 10, padding: "14px 18px",
+      display: "flex", gap: 14, alignItems: "flex-start",
     }}>
       <div style={{
         width: 28, height: 28, borderRadius: 6, flexShrink: 0,
         background: "var(--border)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        marginTop: 1,
+        display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1,
       }}>
-        <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <svg width={13} height={13} viewBox="0 0 24 24" fill="none"
+          stroke="var(--muted)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
         </svg>
       </div>
       <div>
-        <div style={{
-          fontSize: 12, fontWeight: 700, color: "var(--text)",
-          letterSpacing: "-.01em", marginBottom: 3,
-        }}>Gaussian Noise Injection Lab</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)", letterSpacing: "-.01em", marginBottom: 3 }}>
+          Gaussian Noise Injection Lab
+        </div>
         <div style={{ fontSize: 11.5, color: "var(--muted)", lineHeight: 1.7 }}>
           Model dievaluasi pada test set original + tambahan Gaussian noise berbagai level.{" "}
           <code style={{
-            fontFamily: "var(--mono)",
-            background: "rgba(0,0,0,.06)",
-            padding: "1px 6px",
-            borderRadius: 4,
-            fontSize: 11,
-            color: "var(--text-2)",
-          }}>X_noisy = X + X × N(0, σ)</code>
-          {" "}— test set original <strong style={{ color: "var(--text)", fontWeight: 600 }}>bebas noise</strong>.
+            fontFamily: "var(--mono)", background: "rgba(0,0,0,.06)",
+            padding: "1px 6px", borderRadius: 4, fontSize: 11, color: "var(--text-2)",
+          }}>
+            X_noisy = X + N(0, σ × std_col)
+          </code>
+          {" "}— test set original{" "}
+          <strong style={{ color: "var(--text)", fontWeight: 600 }}>bebas noise</strong>.
+          Augmentasi training menggunakan noise berbasis std per kolom (8% std).
         </div>
       </div>
     </div>
 
-    {/* Params */}
+    {/* Params — FIX: nilai diupdate sesuai v3.0 */}
     <div className="g4">
       {[
-        { l: "Noise Level (σ)", v: "20%",        d: "Gaussian noise relatif" },
-        { l: "Multiplier",       v: "×2",         d: "Ukuran train jadi 2×" },
-        { l: "Random Seed",      v: "42",         d: "Reproduksibilitas" },
-        { l: "Scope",            v: "Train Only", d: "Test set bersih" },
+        { l: "Noise Method",    v: "Std-based", d: "N(0, 8% × std_col)" },
+        { l: "Multiplier",      v: "×2",        d: "Ukuran train jadi 2×" },
+        { l: "Random Seed",     v: "42",        d: "Reproduksibilitas" },
+        { l: "Scope",           v: "Train Only",d: "Test set bersih" },
       ].map(p => (
         <div key={p.l} style={{
-          background: "#fff",
-          border: "1px solid var(--border)",
-          borderRadius: 10,
-          padding: "16px 18px",
+          background: "#fff", border: "1px solid var(--border)",
+          borderRadius: 10, padding: "16px 18px",
         }}>
           <div style={{
             fontSize: 9.5, color: "var(--muted)", fontWeight: 700,
@@ -118,15 +113,13 @@ export const StressSection: React.FC<StressProps> = ({ perfData, loading }) => (
                 domain={[50, 101]}
                 tick={{ fontSize: 10, fill: "var(--muted)" }}
                 axisLine={false} tickLine={false}
-                tickFormatter={v => `${v}%`}
+                tickFormatter={(v: number) => `${v}%`}
               />
               <Tooltip
-                formatter={(v: any) => [`${Number(v).toFixed(2)}%`]}
+                formatter={(v: number) => [`${Number(v).toFixed(2)}%`]}
                 contentStyle={{
-                  background: "#fff",
-                  border: "1px solid var(--border)",
-                  borderRadius: 8,
-                  fontSize: 11.5,
+                  background: "#fff", border: "1px solid var(--border)",
+                  borderRadius: 8, fontSize: 11.5,
                   boxShadow: "0 4px 16px rgba(0,0,0,.06)",
                   fontFamily: "var(--mono)",
                 }}
@@ -134,8 +127,7 @@ export const StressSection: React.FC<StressProps> = ({ perfData, loading }) => (
               />
               <Legend
                 wrapperStyle={{ fontSize: 11, color: "var(--muted)", paddingTop: 12 }}
-                iconType="circle"
-                iconSize={7}
+                iconType="circle" iconSize={7}
               />
               <Line type="monotone" dataKey="dt_before" stroke={DT_COLOR}  strokeWidth={2} dot={{ r: 3, fill: DT_COLOR,  strokeWidth: 0 }} name="DT Before FS" />
               <Line type="monotone" dataKey="nb_before" stroke={NB_COLOR}  strokeWidth={2} dot={{ r: 3, fill: NB_COLOR,  strokeWidth: 0 }} name="NB Before FS" />
@@ -157,8 +149,7 @@ export const StressSection: React.FC<StressProps> = ({ perfData, loading }) => (
               <th key={h} style={{
                 fontSize: 10, fontWeight: 700,
                 textTransform: "uppercase" as const, letterSpacing: ".08em",
-                color: "var(--muted)",
-                padding: "0 0 10px",
+                color: "var(--muted)", padding: "0 0 10px",
                 textAlign: i === 0 ? "left" : "center",
                 borderBottom: "1px solid var(--border)",
               }}>{h}</th>
@@ -166,25 +157,23 @@ export const StressSection: React.FC<StressProps> = ({ perfData, loading }) => (
           </tr>
         </thead>
         <tbody>
-          {(perfData?.stress_test ?? []).map((row: any) => (
+          {(perfData?.stress_test ?? []).map(row => (
             <tr key={row.noise}>
               <td style={{ padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
                 <span style={{
                   fontFamily: "var(--mono)", fontSize: 11, fontWeight: 600,
-                  color: "var(--text-2)",
-                  background: "var(--bg)", padding: "2px 8px",
-                  borderRadius: 4,
+                  color: "var(--text-2)", background: "var(--bg)",
+                  padding: "2px 8px", borderRadius: 4,
                 }}>{row.noise}</span>
               </td>
-              {[row.dt_before, row.nb_before, row.dt_after, row.nb_after].map((v: number, i: number) => (
+              {([row.dt_before, row.nb_before, row.dt_after, row.nb_after] as number[]).map((v, i) => (
                 <td key={i} style={{
-                  textAlign: "center",
-                  padding: "10px 0",
+                  textAlign: "center", padding: "10px 0",
                   borderBottom: "1px solid var(--border)",
                 }}>
                   <span style={{
                     fontFamily: "var(--mono)", fontSize: 11, fontWeight: 600,
-                    color: v >= 90 ? "#1A3D2B" : v >= 75 ? "#7C5208" : "#991B1B",
+                    color:      v >= 90 ? "#1A3D2B" : v >= 75 ? "#7C5208" : "#991B1B",
                     background: v >= 90 ? "#F0FAF4" : v >= 75 ? "#FFFBEB" : "#FEF2F2",
                     padding: "2px 8px", borderRadius: 4,
                   }}>{v?.toFixed(2)}%</span>

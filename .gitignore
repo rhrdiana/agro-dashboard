@@ -14,3 +14,9 @@ node_modules/
 # OS
 .DS_Store
 Thumbs.db
+
+# Backend generated files (auto dibuat ulang saat runtime)
+backend/model_cache.pkl
+backend/audit_log.json
+backend/reports/
+backend/batch_results/

@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AgroAI Dashboard",
-  description: "Dashboard AI Pertanian dengan Next.js dan Python",
+  description: "Agricultural IoT Analytics",
 };
 
 export default function RootLayout({
